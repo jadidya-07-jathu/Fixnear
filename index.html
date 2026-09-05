@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>FixNear | Local Repair Finder</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <a href="#" class="logo">
+
+        <span>F</span>
+
+        FixNear
+
+    </a>
+
+
+    <nav>
+
+        <a href="#find">Find Shop</a>
+
+        <a href="#shops">Shops</a>
+
+        <a href="#about">About</a>
+
+    </nav>
+
+
+    <button id="themeBtn" class="theme">
+        ☼
+    </button>
+
+</header>
+
+
+<main>
+
+
+<!-- HERO -->
+
+<section class="hero" id="find">
+
+    <div>
+
+        <p class="eyebrow">
+            LOCAL SERVICES • SMART DISCOVERY
+        </p>
+
+
+        <h1>
+
+            Find someone who
+            can <span>fix it.</span>
+
+        </h1>
+
+
+        <p class="description">
+
+            Discover nearby repair shops based on
+            service type, availability, distance,
+            ratings and estimated repair time.
+
+        </p>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+            <div class="search-input">
+
+                <span>⌕</span>
+
+                <input
+                    id="search"
+                    type="text"
+                    maxlength="40"
+                    placeholder="What needs repair?"
+                >
+
+            </div>
+
+
+            <select id="category">
+
+                <option value="all">
+                    All categories
+                </option>
+
+                <option value="Phone">
+                    Phone
+                </option>
+
+                <option value="Laptop">
+                    Laptop
+                </option>
+
+                <option value="Appliance">
+                    Appliance
+                </option>
+
+                <option value="Bike">
+                    Bike
+                </option>
+
+                <option value="Watch">
+                    Watch
+                </option>
+
+                <option value="Shoe">
+                    Shoe
+                </option>
+
+            </select>
+
+
+            <select id="availability">
+
+                <option value="all">
+                    Any availability
+                </option>
+
+                <option value="open">
+                    Open now
+                </option>
+
+                <option value="today">
+                    Available today
+                </option>
+
+            </select>
+
+
+            <button
+                id="searchBtn"
+                class="primary-btn"
+            >
+
+                Search
+
+            </button>
+
+        </div>
+
+
+        <p
+            id="searchError"
+            class="error"
+        ></p>
+
+    </div>
+
+
+    <!-- HERO ANIMATION -->
+
+    <div class="hero-art">
+
+        <div class="circle circle1"></div>
+
+        <div class="circle circle2"></div>
+
+
+        <div class="tool-card tool1">
+            🔧
+            <small>Repair</small>
+        </div>
+
+
+        <div class="tool-card tool2">
+            📱
+            <small>Phone</small>
+        </div>
+
+
+        <div class="tool-card tool3">
+            💻
+            <small>Laptop</small>
+        </div>
+
+
+        <div class="center">
+            🛠️
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- SHOPS -->
+
+<section class="shops-section" id="shops">
+
+    <div class="section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                DISCOVERY
+            </p>
+
+            <h2>
+                Repair shops near you
+            </h2>
+
+        </div>
+
+
+        <span id="resultCount"></span>
+
+    </div>
+
+
+    <!-- FILTERS -->
+
+    <div class="filters">
+
+        <button
+            class="filter active"
+            data-filter="all"
+        >
+            All
+        </button>
+
+
+        <button
+            class="filter"
+            data-filter="top"
+        >
+            Top Rated
+        </button>
+
+
+        <button
+            class="filter"
+            data-filter="fast"
+        >
+            Fast Service
+        </button>
+
+
+        <button
+            class="filter"
+            data-filter="open"
+        >
+            Open Now
+        </button>
+
+    </div>
+
+
+    <div class="layout">
+
+
+        <!-- SHOP LIST -->
+
+        <div id="shopList" class="shop-list"></div>
+
+
+        <!-- MAP -->
+
+        <div class="map">
+
+            <div class="map-grid"></div>
+
+            <div class="map-title">
+                LOCAL SERVICE MAP
+            </div>
+
+
+            <div class="street street1"></div>
+
+            <div class="street street2"></div>
+
+            <div class="street street3"></div>
+
+
+            <div id="mapPins"></div>
+
+
+            <div class="you">
+                YOU
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section class="about" id="about">
+
+    <p class="eyebrow">
+        PROJECT CONCEPT
+    </p>
+
+    <h2>
+        Turn fragmented local repair
+        information into one useful service layer.
+    </h2>
+
+
+    <div class="feature-grid">
+
+
+        <article>
+
+            <b>01</b>
+
+            <h3>
+                Availability First
+            </h3>
+
+            <p>
+                People need to know who can actually
+                accept a repair instead of simply seeing
+                a list of businesses.
+            </p>
+
+        </article>
+
+
+        <article>
+
+            <b>02</b>
+
+            <h3>
+                Transparent Signals
+            </h3>
+
+            <p>
+                Combine distance, rating, estimated
+                service time and availability.
+            </p>
+
+        </article>
+
+
+        <article>
+
+            <b>03</b>
+
+            <h3>
+                Community Updates
+            </h3>
+
+            <p>
+                A production version could allow
+                shops and customers to verify current
+                availability.
+            </p>
+
+        </article>
+
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- BOOKING MODAL -->
+
+<div
+    class="modal"
+    id="modal"
+>
+
+    <div class="modal-card">
+
+        <button
+            id="closeModal"
+            class="close"
+        >
+            ×
+        </button>
+
+
+        <p class="eyebrow">
+            SERVICE REQUEST
+        </p>
+
+
+        <h2 id="modalTitle">
+            Request Repair
+        </h2>
+
+
+        <form id="bookingForm" novalidate>
+
+
+            <label>
+
+                Your Name
+
+                <input
+                    id="customerName"
+                    type="text"
+                    maxlength="50"
+                    placeholder="Enter your name"
+                >
+
+            </label>
+
+
+            <label>
+
+                Repair Description
+
+                <textarea
+                    id="issue"
+                    maxlength="180"
+                    placeholder="Describe the problem"
+                ></textarea>
+
+            </label>
+
+
+            <label>
+
+                Preferred Time
+
+                <select id="time">
+
+                    <option value="">
+                        Select time
+                    </option>
+
+                    <option>
+                        Morning
+                    </option>
+
+                    <option>
+                        Afternoon
+                    </option>
+
+                    <option>
+                        Evening
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <button class="primary-btn full">
+
+                Send Repair Request
+
+            </button>
+
+
+            <p
+                id="bookingError"
+                class="error"
+            ></p>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<footer>
+
+    FixNear • Local Repair Shop Availability
+
+    <br>
+
+    Built by Jadidya using HTML, CSS & JavaScript
+
+</footer>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
