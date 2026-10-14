@@ -1,759 +1,657 @@
-const shops = [
 
-    {
-        id: 1,
-        name: "FixPoint Electronics",
-        category: "Phone",
-        icon: "📱",
-        rating: 4.9,
-        distance: 0.8,
-        time: "30–60 min",
-        open: true,
-        today: true,
-        top: true,
-        fast: true,
-        services:
-            "Screen • Battery • Charging",
-        x: 24,
-        y: 31
-    },
+// FixNear - Complete Frontend JavaScript
 
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id);
 
-    {
-        id: 2,
-        name: "ByteCare Laptop Lab",
-        category: "Laptop",
-        icon: "💻",
-        rating: 4.8,
-        distance: 1.4,
-        time: "1–2 hrs",
-        open: true,
-        today: true,
-        top: true,
-        fast: false,
-        services:
-            "OS • Keyboard • Hardware",
-        x: 66,
-        y: 24
-    },
+  const KEYS = {
+    theme: "fixnear_theme_v2",
+    user: "fixnear_user_v2",
+    role: "fixnear_role_v2",
+    ratings: "fixnear_ratings_v2",
+    attendance: "fixnear_attendance_v2",
+    requests: "fixnear_requests_v2"
+  };
 
-
-    {
-        id: 3,
-        name: "City Appliance Works",
-        category: "Appliance",
-        icon: "🔌",
-        rating: 4.6,
-        distance: 2.1,
-        time: "Same day",
-        open: false,
-        today: true,
-        top: false,
-        fast: false,
-        services:
-            "Fan • Mixer • Washing Machine",
-        x: 76,
-        y: 62
-    },
-
-
-    {
-        id: 4,
-        name: "QuickWheel Garage",
-        category: "Bike",
-        icon: "🏍️",
-        rating: 4.7,
-        distance: 1.1,
-        time: "20–40 min",
-        open: true,
-        today: true,
-        top: true,
-        fast: true,
-        services:
-            "Brakes • Tyres • Chain",
-        x: 34,
-        y: 70
-    },
-
-
-    {
-        id: 5,
-        name: "TimeCraft Watch Repair",
-        category: "Watch",
-        icon: "⌚",
-        rating: 4.5,
-        distance: 2.7,
-        time: "1 day",
-        open: true,
-        today: false,
-        top: false,
-        fast: false,
-        services:
-            "Battery • Strap • Movement",
-        x: 81,
-        y: 40
-    },
-
-
-    {
-        id: 6,
-        name: "SoleRevive",
-        category: "Shoe",
-        icon: "👟",
-        rating: 4.4,
-        distance: 1.9,
-        time: "2–4 hrs",
-        open: false,
-        today: true,
-        top: false,
-        fast: false,
-        services:
-            "Sole • Stitching • Cleaning",
-        x: 48,
-        y: 80
+  function readStore(key, fallback) {
+    try {
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
+    } catch {
+      return fallback;
     }
+  }
 
-];
+  function writeStore(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
 
+  function showToast(message) {
+    const toast = $("toast");
+    if (!toast) return;
 
-let activeFilter = "all";
+    toast.textContent = message;
+    toast.classList.add("show");
 
-let selectedShop = null;
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
 
+  // ---------------- SHOP DATA ----------------
 
-/* SELECTORS */
+  const shops = [
+    {
+      id: 1,
+      name: "Sri Lakshmi Electrical Works",
+      category: "Electrician",
+      rating: 4.8,
+      reviews: 120,
+      phone: "9876543210",
+      lat: 17.0005,
+      lng: 81.8040,
+      active: true
+    },
+    {
+      id: 2,
+      name: "Raju Plumbing Services",
+      category: "Plumber",
+      rating: 4.6,
+      reviews: 85,
+      phone: "9876543211",
+      lat: 17.0050,
+      lng: 81.7900,
+      active: false
+    },
+    {
+      id: 3,
+      name: "Smart Mobile Repair",
+      category: "Mobile Repair",
+      rating: 4.9,
+      reviews: 150,
+      phone: "9876543212",
+      lat: 16.9980,
+      lng: 81.7850,
+      active: true
+    },
+    {
+      id: 4,
+      name: "Quick Home Cleaning",
+      category: "Cleaning",
+      rating: 4.5,
+      reviews: 65,
+      phone: "9876543213",
+      lat: 17.0100,
+      lng: 81.8000,
+      active: false
+    }
+  ];
 
-const shopList =
-    document.getElementById("shopList");
+  // These are demo shops and sample locations.
+  const attendance = readStore(KEYS.attendance, {});
+  const ratings = readStore(KEYS.ratings, {});
 
-const mapPins =
-    document.getElementById("mapPins");
-
-const search =
-    document.getElementById("search");
-
-const category =
-    document.getElementById("category");
-
-const availability =
-    document.getElementById("availability");
-
-
-/* ESCAPE */
-
-function escapeHTML(value) {
-
-    return String(value).replace(/[&<>"']/g, char => {
-
-        const entities = {
-
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-
-        };
-
-        return entities[char];
-
+  function refreshShopData() {
+    shops.forEach((shop) => {
+      if (Array.isArray(ratings[shop.id]) && ratings[shop.id].length) {
+        const scores = ratings[shop.id];
+        shop.rating = (
+          scores.reduce((sum, score) => sum + score, 0) / scores.length
+        ).toFixed(1);
+        shop.reviews = shop.baseReviews + scores.length;
+      }
+      if (Object.prototype.hasOwnProperty.call(attendance, shop.id)) {
+        shop.active = Boolean(attendance[shop.id]);
+      }
     });
+  }
 
-}
+  shops.forEach((shop) => {
+    shop.baseReviews = shop.reviews;
+  });
 
+  refreshShopData();
 
-/* RENDER */
+  // ---------------- THEME ----------------
 
-function renderShops() {
+  const themeToggle = $("themeToggle");
 
-    const query =
-        search.value.trim().toLowerCase();
+  function setTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(KEYS.theme, theme);
 
-    const selectedCategory =
-        category.value;
+    if (themeToggle) {
+      themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+      themeToggle.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      );
+    }
+  }
 
-    const selectedAvailability =
-        availability.value;
+  setTheme(localStorage.getItem(KEYS.theme) || "light");
 
+  themeToggle?.addEventListener("click", () => {
+    const current =
+      document.documentElement.getAttribute("data-theme");
+    setTheme(current === "dark" ? "light" : "dark");
+  });
 
-    let results = shops.filter(shop => {
+  // ---------------- MOBILE NAVIGATION ----------------
 
-        const matchesSearch =
-            !query ||
+  const navigation = $("navigation");
+  const menuToggle = $("menuToggle");
 
-            `${shop.name}
-             ${shop.category}
-             ${shop.services}`
-                .toLowerCase()
-                .includes(query);
+  menuToggle?.addEventListener("click", () => {
+    const open = navigation.classList.toggle("open");
+    menuToggle.setAttribute("aria-expanded", String(open));
+    menuToggle.textContent = open ? "✕" : "☰";
+  });
 
-
-        const matchesCategory =
-            selectedCategory === "all" ||
-            shop.category === selectedCategory;
-
-
-        const matchesAvailability =
-            selectedAvailability === "all" ||
-
-            (
-                selectedAvailability === "open" &&
-                shop.open
-            ) ||
-
-            (
-                selectedAvailability === "today" &&
-                shop.today
-            );
-
-
-        return (
-            matchesSearch &&
-            matchesCategory &&
-            matchesAvailability
-        );
-
+  navigation?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navigation.classList.remove("open");
+      menuToggle.textContent = "☰";
+      menuToggle.setAttribute("aria-expanded", "false");
     });
+  });
 
+  // Highlight the currently selected navigation link.
+  navigation?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navigation.querySelectorAll("a").forEach((item) => {
+        item.classList.remove("active");
+      });
+      link.classList.add("active");
+    });
+  });
 
-    /* FILTER BUTTON */
+  // ---------------- LOGIN AND LOGOUT ----------------
 
-    if (activeFilter === "top") {
+  const loginModal = $("loginModal");
+  const loginBtn = $("loginBtn");
+  const logoutBtn = $("logoutBtn");
+  const loginForm = $("loginForm");
 
-        results =
-            results.filter(shop => shop.top);
+  function getRole() {
+    return localStorage.getItem(KEYS.role) || "";
+  }
 
-    }
+  function getUser() {
+    return localStorage.getItem(KEYS.user) || "";
+  }
 
+  function openLogin() {
+    loginModal?.classList.remove("hidden");
+    $("loginName").focus();
+  }
 
-    if (activeFilter === "fast") {
+  function closeLogin() {
+    loginModal?.classList.add("hidden");
+  }
 
-        results =
-            results.filter(shop => shop.fast);
+  loginBtn?.addEventListener("click", openLogin);
+  $("closeModal")?.addEventListener("click", closeLogin);
 
-    }
+  loginModal?.addEventListener("click", (event) => {
+    if (event.target === loginModal) closeLogin();
+  });
 
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeLogin();
+  });
 
-    if (activeFilter === "open") {
+  function updateAccountUI() {
+    const role = getRole();
+    const name = getUser();
 
-        results =
-            results.filter(shop => shop.open);
-
-    }
-
-
-    document.getElementById("resultCount")
-        .textContent =
-        `${results.length} result${results.length !== 1 ? "s" : ""}`;
-
-
-    /* EMPTY */
-
-    if (results.length === 0) {
-
-        shopList.innerHTML = `
-
-            <div class="shop">
-
-                <div class="shop-icon">
-                    🔎
-                </div>
-
-                <div>
-
-                    <h3>
-                        No matching shops
-                    </h3>
-
-                    <p>
-                        Try another search or filter.
-                    </p>
-
-                </div>
-
-            </div>
-
-        `;
-
+    if (role && name) {
+      loginBtn.textContent = name;
+      loginBtn.title = `Logged in as ${role}`;
+      logoutBtn?.classList.remove("hidden");
     } else {
-
-        shopList.innerHTML =
-            results.map((shop, index) => {
-
-                return `
-
-                <article
-                    class="shop"
-                    style="
-                        animation-delay:
-                        ${index * 0.05}s
-                    "
-                >
-
-                    <div class="shop-icon">
-                        ${shop.icon}
-                    </div>
-
-
-                    <div>
-
-                        <h3>
-                            ${escapeHTML(shop.name)}
-                        </h3>
-
-                        <p>
-                            ${escapeHTML(shop.category)}
-                            •
-                            ${shop.distance} km away
-                        </p>
-
-
-                        <div class="badges">
-
-                            <span class="badge rating">
-                                ★ ${shop.rating}
-                            </span>
-
-
-                            <span class="badge">
-                                ${escapeHTML(shop.time)}
-                            </span>
-
-
-                            <span
-                                class="badge
-                                ${shop.open ? "available" : ""}"
-                            >
-
-                                ${shop.open
-                                    ? "Open now"
-                                    : "Closed"}
-
-                                ${
-                                    shop.today &&
-                                    !shop.open
-                                    ? " • Available today"
-                                    : ""
-                                }
-
-                            </span>
-
-                        </div>
-
-
-                        <p>
-                            ${escapeHTML(shop.services)}
-                        </p>
-
-                    </div>
-
-
-                    <button
-                        class="book-btn"
-                        data-shop="${shop.id}"
-                    >
-
-                        Request Repair
-
-                    </button>
-
-                </article>
-
-                `;
-
-            }).join("");
-
+      loginBtn.textContent = "Login";
+      loginBtn.title = "Login";
+      logoutBtn?.classList.add("hidden");
     }
 
+    $("workerDashboard")?.classList.toggle("hidden", role !== "worker");
 
-    renderPins(results);
+    if (role === "worker") {
+      populateWorkerShopOptions();
+      updateWorkerDashboard();
+    }
 
-}
+    if (role === "customer") {
+      displayCustomerRequests();
+    } else if ($("customerRequests")) {
+      $("customerRequests").innerHTML = "";
+    }
+  }
 
+  loginForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-/* MAP PINS */
+    const name = $("loginName").value.trim();
+    const role = $("loginRole").value;
 
-function renderPins(results) {
+    if (!name || !["customer", "worker"].includes(role)) {
+      showToast("Enter your name and select Customer or Worker.");
+      return;
+    }
 
-    mapPins.innerHTML =
-        results.map(shop => {
+    localStorage.setItem(KEYS.user, name);
+    localStorage.setItem(KEYS.role, role);
 
-            return `
+    closeLogin();
+    updateAccountUI();
+    renderShops();
+    showToast(`Welcome, ${name}! You are logged in as ${role}.`);
 
-                <button
-                    class="pin"
-                    title="${escapeHTML(shop.name)}"
-                    data-pin="${shop.id}"
-                    style="
-                        left:${shop.x}%;
-                        top:${shop.y}%;
-                    "
-                ></button>
+    if (role === "worker") {
+      $("workerDashboard").scrollIntoView({ behavior: "smooth" });
+    }
+  });
 
-            `;
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem(KEYS.user);
+    localStorage.removeItem(KEYS.role);
+    updateAccountUI();
+    showToast("You have logged out.");
+  });
 
-        }).join("");
+  // ---------------- SEARCH AND FILTERS ----------------
 
-}
+  const searchInput = $("searchInput");
+  const categoryFilter = $("categoryFilter");
+  const availabilityFilter = $("availabilityFilter");
 
+  let selectedCategory = "All";
 
-/* SEARCH */
+  function getFilteredShops() {
+    const search = (searchInput?.value || "").trim().toLowerCase();
+    const category = categoryFilter?.value || "All";
+    const availability = availabilityFilter?.value || "All";
 
-document.getElementById("searchBtn")
-    .addEventListener("click", function() {
+    return shops.filter((shop) => {
+      const matchesSearch =
+        shop.name.toLowerCase().includes(search) ||
+        shop.category.toLowerCase().includes(search);
 
-        const error =
-            document.getElementById("searchError");
+      const matchesCategory =
+        category === "All" || shop.category === category;
 
+      const matchesAvailability =
+        availability !== "Active" || shop.active;
 
-        if (
-            search.value.trim().length === 1
-        ) {
+      const matchesServiceCard =
+        selectedCategory === "All" ||
+        shop.category === selectedCategory;
 
-            error.textContent =
-                "Enter at least 2 characters.";
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesAvailability &&
+        matchesServiceCard
+      );
+    });
+  }
 
-            return;
+  function safeText(value) {
+    const span = document.createElement("span");
+    span.textContent = String(value);
+    return span.innerHTML;
+  }
 
-        }
+  function renderShops() {
+    const container = $("shopContainer");
+    if (!container) return;
 
+    refreshShopData();
+    const filtered = getFilteredShops();
 
-        error.textContent = "";
+    container.innerHTML = "";
 
-        renderShops();
+    filtered.forEach((shop) => {
+      const card = document.createElement("article");
+      card.className = "shop-card";
 
-        document
-            .getElementById("shops")
-            .scrollIntoView({
-                behavior: "smooth"
-            });
+      const directionsURL =
+        `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`;
 
+      card.innerHTML = `
+        <span class="eyebrow">${safeText(shop.category)}</span>
+        <h3>${safeText(shop.name)}</h3>
+        <p class="shop-category">Local service provider</p>
+        <p class="shop-rating">⭐ ${shop.rating} <span class="muted">(${shop.reviews} reviews)</span></p>
+        <span class="shop-status ${shop.active ? "active" : "offline"}">
+          ${shop.active ? "● Active now" : "● Offline"}
+        </span>
+        <p class="shop-contact">📞 ${safeText(shop.phone)}</p>
+        <div class="shop-actions">
+          <button class="btn btn-primary rate-btn" data-id="${shop.id}">
+            ⭐ Rate
+          </button>
+          <a class="btn btn-outline" href="tel:${shop.phone}">📞 Call</a>
+          <a class="btn btn-outline" href="${directionsURL}"
+             target="_blank" rel="noopener noreferrer">📍 Directions</a>
+        </div>
+      `;
+
+      container.appendChild(card);
     });
 
+    $("resultsCount").textContent =
+      `${filtered.length} service provider${filtered.length === 1 ? "" : "s"} found`;
 
-/* LIVE SEARCH */
+    $("emptyMessage").classList.toggle("hidden", filtered.length > 0);
 
-search.addEventListener(
-    "input",
-    renderShops
-);
+    updateMapMarkers();
+  }
 
-category.addEventListener(
-    "change",
-    renderShops
-);
+  searchInput?.addEventListener("input", renderShops);
+  categoryFilter?.addEventListener("change", renderShops);
+  availabilityFilter?.addEventListener("change", renderShops);
 
-availability.addEventListener(
-    "change",
-    renderShops
-);
+  document.querySelectorAll(".service-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectedCategory = button.dataset.category;
 
+      document.querySelectorAll(".service-card").forEach((card) => {
+        card.classList.toggle("selected", card === button);
+      });
 
-/* FILTERS */
+      categoryFilter.value = selectedCategory;
+      renderShops();
+      $("shops").scrollIntoView({ behavior: "smooth" });
+    });
+  });
 
-document
-    .querySelector(".filters")
-    .addEventListener("click", function(event) {
+  $("clearFiltersBtn")?.addEventListener("click", () => {
+    searchInput.value = "";
+    categoryFilter.value = "All";
+    availabilityFilter.value = "All";
+    selectedCategory = "All";
 
-        const button =
-            event.target.closest(".filter");
-
-
-        if (!button) {
-            return;
-        }
-
-
-        document
-            .querySelectorAll(".filter")
-            .forEach(btn =>
-                btn.classList.remove("active")
-            );
-
-
-        button.classList.add("active");
-
-
-        activeFilter =
-            button.dataset.filter;
-
-
-        renderShops();
-
+    document.querySelectorAll(".service-card").forEach((card) => {
+      card.classList.remove("selected");
     });
 
+    renderShops();
+    showToast("Filters cleared.");
+  });
 
-/* OPEN BOOKING */
+  // ---------------- SHOP RATINGS ----------------
 
-shopList.addEventListener(
-    "click",
-    function(event) {
+  $("shopContainer")?.addEventListener("click", (event) => {
+    const button = event.target.closest(".rate-btn");
+    if (!button) return;
 
-        const button =
-            event.target.closest(".book-btn");
-
-
-        if (!button) {
-            return;
-        }
-
-
-        const id =
-            Number(button.dataset.shop);
-
-
-        selectedShop =
-            shops.find(shop => shop.id === id);
-
-
-        openModal();
-
+    if (getRole() !== "customer") {
+      showToast("Please log in as a customer to rate a shop.");
+      openLogin();
+      return;
     }
-);
 
+    const shopId = Number(button.dataset.id);
+    const shop = shops.find((item) => item.id === shopId);
+    if (!shop) return;
 
-/* MAP BOOKING */
-
-mapPins.addEventListener(
-    "click",
-    function(event) {
-
-        const pin =
-            event.target.closest(".pin");
-
-
-        if (!pin) {
-            return;
-        }
-
-
-        const id =
-            Number(pin.dataset.pin);
-
-
-        selectedShop =
-            shops.find(shop => shop.id === id);
-
-
-        openModal();
-
-    }
-);
-
-
-/* MODAL */
-
-const modal =
-    document.getElementById("modal");
-
-
-function openModal() {
-
-    document.getElementById("modalTitle")
-        .textContent =
-        `Request repair at
-        ${selectedShop.name}`;
-
-
-    modal.classList.add("show");
-
-    document
-        .getElementById("customerName")
-        .focus();
-
-}
-
-
-function closeModal() {
-
-    modal.classList.remove("show");
-
-    document
-        .getElementById("bookingForm")
-        .reset();
-
-    document
-        .getElementById("bookingError")
-        .textContent = "";
-
-}
-
-
-/* CLOSE */
-
-document
-    .getElementById("closeModal")
-    .addEventListener(
-        "click",
-        closeModal
+    const input = prompt(
+      `Rate ${shop.name} from 1 to 5 stars.`
     );
 
+    if (input === null) return;
 
-modal.addEventListener(
-    "click",
-    function(event) {
+    const score = Number(input);
 
-        if (event.target === modal) {
-
-            closeModal();
-
-        }
-
+    if (!Number.isInteger(score) || score < 1 || score > 5) {
+      showToast("Enter a whole number between 1 and 5.");
+      return;
     }
-);
 
+    if (!Array.isArray(ratings[shopId])) ratings[shopId] = [];
+    ratings[shopId].push(score);
 
-/* ESCAPE KEY */
+    writeStore(KEYS.ratings, ratings);
+    refreshShopData();
+    renderShops();
+    showToast("Thank you! Your rating was saved in this browser.");
+  });
 
-document.addEventListener(
-    "keydown",
-    function(event) {
+  // ---------------- WORKER ATTENDANCE ----------------
 
-        if (event.key === "Escape") {
+  function populateWorkerShopOptions() {
+    const select = $("workerShop");
+    if (!select) return;
 
-            closeModal();
+    const currentValue = select.value;
+    select.innerHTML = "";
 
-        }
+    shops.forEach((shop) => {
+      const option = document.createElement("option");
+      option.value = shop.id;
+      option.textContent = `${shop.name} — ${shop.category}`;
+      select.appendChild(option);
+    });
 
+    if (shops.some((shop) => String(shop.id) === currentValue)) {
+      select.value = currentValue;
     }
-);
+  }
 
+  function updateWorkerDashboard() {
+    if (getRole() !== "worker") return;
 
-/* BOOKING VALIDATION */
+    const shopId = Number($("workerShop")?.value || shops[0].id);
+    const shop = shops.find((item) => item.id === shopId);
+    if (!shop) return;
 
-document
-    .getElementById("bookingForm")
-    .addEventListener(
-        "submit",
-        function(event) {
+    const active = Boolean(attendance[shopId]);
 
-            event.preventDefault();
+    $("workerStatus").textContent = active ? "Active now" : "Offline";
+    $("workerStatus").className =
+      `status-pill ${active ? "active" : "offline"}`;
 
+    $("attendanceBtn").textContent = active
+      ? "Mark Attendance / Go Offline"
+      : "Mark Attendance / Go Active";
 
-            const name =
-                document
-                    .getElementById("customerName")
-                    .value
-                    .trim();
+    $("attendanceMessage").textContent = active
+      ? `${shop.name}: You are marked active in this browser.`
+      : `${shop.name}: You are currently marked offline.`;
+  }
 
+  $("workerShop")?.addEventListener("change", updateWorkerDashboard);
 
-            const issue =
-                document
-                    .getElementById("issue")
-                    .value
-                    .trim();
+  $("attendanceBtn")?.addEventListener("click", () => {
+    if (getRole() !== "worker") {
+      showToast("Please log in as a worker first.");
+      openLogin();
+      return;
+    }
 
+    const shopId = Number($("workerShop").value);
+    const shop = shops.find((item) => item.id === shopId);
 
-            const time =
-                document
-                    .getElementById("time")
-                    .value;
+    if (!shop) {
+      showToast("Please select a valid shop.");
+      return;
+    }
 
+    attendance[shopId] = !Boolean(attendance[shopId]);
+    writeStore(KEYS.attendance, attendance);
 
-            const error =
-                document
-                    .getElementById("bookingError");
+    refreshShopData();
+    updateWorkerDashboard();
+    renderShops();
 
-
-            if (name.length < 2) {
-
-                error.textContent =
-                    "Please enter your name.";
-
-                return;
-
-            }
-
-
-            if (issue.length < 10) {
-
-                error.textContent =
-                    "Describe the repair using at least 10 characters.";
-
-                return;
-
-            }
-
-
-            if (!time) {
-
-                error.textContent =
-                    "Please select a preferred time.";
-
-                return;
-
-            }
-
-
-            /* LOCAL STORAGE */
-
-            const requests =
-                JSON.parse(
-                    localStorage.getItem(
-                        "fixNearRequests"
-                    )
-                ) || [];
-
-
-            requests.push({
-
-                shop:
-                    selectedShop.name,
-
-                customer:
-                    name,
-
-                issue:
-                    issue,
-
-                time:
-                    time,
-
-                createdAt:
-                    new Date().toISOString()
-
-            });
-
-
-            localStorage.setItem(
-                "fixNearRequests",
-                JSON.stringify(requests)
-            );
-
-
-            error.style.color =
-                "#62e3a4";
-
-
-            error.textContent =
-                "Repair request saved successfully!";
-
-
-            setTimeout(
-                closeModal,
-                1200
-            );
-
-        }
+    showToast(
+      attendance[shopId]
+        ? "Attendance marked. You are active in this browser."
+        : "You are now marked offline in this browser."
     );
+  });
 
+  // ---------------- CUSTOMER REQUESTS ----------------
 
-/* THEME */
+  const requestForm = $("requestForm");
 
-document
-    .getElementById("themeBtn")
-    .addEventListener(
-        "click",
-        function() {
+  function displayCustomerRequests() {
+    const container = $("customerRequests");
+    if (!container || getRole() !== "customer") return;
 
-            document.body.classList.toggle(
-                "light"
-            );
+    const requests = readStore(KEYS.requests, []);
+    const mine = requests.filter((item) => item.customer === getUser());
 
-        }
-    );
+    container.innerHTML = "";
 
+    if (mine.length === 0) {
+      container.textContent = "Your submitted requests will appear here.";
+      return;
+    }
 
-/* START */
+    const heading = document.createElement("h3");
+    heading.textContent = "Your Service Requests";
+    container.appendChild(heading);
 
-renderShops();
+    mine.slice().reverse().forEach((request) => {
+      const item = document.createElement("div");
+      item.className = "request-item";
+
+      const title = document.createElement("strong");
+      title.textContent = request.service;
+
+      const details = document.createElement("p");
+      details.textContent = request.details;
+
+      const address = document.createElement("p");
+      address.textContent = `Location: ${request.address}`;
+
+      const date = document.createElement("p");
+      date.textContent = request.date;
+
+      const status = document.createElement("p");
+      status.className = "request-status";
+      status.textContent = `Status: ${request.status}`;
+
+      item.append(title, details, address, date, status);
+      container.appendChild(item);
+    });
+  }
+
+  requestForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (getRole() !== "customer") {
+      showToast("Please log in as a customer to submit a request.");
+      openLogin();
+      return;
+    }
+
+    const service = $("requestService").value;
+    const details = $("requestDetails").value.trim();
+    const address = $("requestAddress").value.trim();
+
+    if (!service || !details || !address) {
+      showToast("Please complete all request fields.");
+      return;
+    }
+
+    const requests = readStore(KEYS.requests, []);
+
+    requests.push({
+      id: Date.now(),
+      customer: getUser(),
+      service,
+      details,
+      address,
+      date: new Date().toLocaleString(),
+      status: "Pending"
+    });
+
+    writeStore(KEYS.requests, requests);
+    requestForm.reset();
+    displayCustomerRequests();
+    showToast("Your demo service request has been saved.");
+  });
+
+  $("heroRequestBtn")?.addEventListener("click", () => {
+    $("requestSection").scrollIntoView({ behavior: "smooth" });
+  });
+
+  // ---------------- INTERACTIVE LEAFLET MAP ----------------
+
+  let map = null;
+  let markers = [];
+
+  function initializeMap() {
+    const mapElement = $("map");
+
+    if (!mapElement || typeof L === "undefined") {
+      if (mapElement) {
+        mapElement.innerHTML =
+          "The map could not load. Check your internet connection and reload.";
+      }
+      return;
+    }
+
+    map = L.map("map").setView([17.0005, 81.8040], 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    updateMapMarkers();
+
+    // Fix map sizing when a user opens or resizes the page.
+    setTimeout(() => map.invalidateSize(), 150);
+  }
+
+  function updateMapMarkers() {
+    if (!map) return;
+
+    markers.forEach((marker) => marker.remove());
+    markers = [];
+
+    const filtered = getFilteredShops();
+
+    filtered.forEach((shop) => {
+      const marker = L.marker([shop.lat, shop.lng]).addTo(map);
+
+      const directionsURL =
+        `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`;
+
+      marker.bindPopup(`
+        <strong>${safeText(shop.name)}</strong><br>
+        ${safeText(shop.category)}<br>
+        ⭐ ${shop.rating} (${shop.reviews} reviews)<br>
+        ${shop.active ? "🟢 Active now" : "⚪ Offline"}<br>
+        <a href="${directionsURL}" target="_blank"
+           rel="noopener noreferrer">Get directions</a><br>
+        <a href="tel:${shop.phone}">Call ${shop.phone}</a>
+      `);
+
+      marker.addTo(map);
+      markers.push(marker);
+    });
+
+    if (filtered.length > 0) {
+      const bounds = L.latLngBounds(
+        filtered.map((shop) => [shop.lat, shop.lng])
+      );
+
+      map.fitBounds(bounds, { padding: [35, 35], maxZoom: 14 });
+    }
+  }
+
+  // ---------------- INITIALIZE PAGE ----------------
+
+  $("currentYear").textContent = new Date().getFullYear();
+
+  updateAccountUI();
+  renderShops();
+  initializeMap();
+});
