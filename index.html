@@ -1,509 +1,281 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixNear | Local Services</title>
+  <meta name="description" content="Find trusted local repair workers and home services.">
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>FixNear | Local Repair Finder</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
-
 <body>
+  <header class="header">
+    <a href="#home" class="logo">Fix<span>Near</span></a>
 
+    <button class="menu-toggle" id="menuToggle"
+      aria-label="Open navigation">☰</button>
 
-<header class="navbar">
-
-    <a href="#" class="logo">
-
-        <span>F</span>
-
-        FixNear
-
-    </a>
-
-
-    <nav>
-
-        <a href="#find">Find Shop</a>
-
-        <a href="#shops">Shops</a>
-
-        <a href="#about">About</a>
-
+    <nav id="navigation">
+      <a href="#home">Home</a>
+      <a href="#services">Services</a>
+      <a href="#shops">Shops</a>
+      <a href="#mapSection">Map</a>
+      <a href="#contact">Contact</a>
     </nav>
 
-
-    <button id="themeBtn" class="theme">
-        ☼
-    </button>
-
-</header>
-
-
-<main>
-
-
-<!-- HERO -->
-
-<section class="hero" id="find">
-
-    <div>
-
-        <p class="eyebrow">
-            LOCAL SERVICES • SMART DISCOVERY
-        </p>
-
-
-        <h1>
-
-            Find someone who
-            can <span>fix it.</span>
-
-        </h1>
-
-
-        <p class="description">
-
-            Discover nearby repair shops based on
-            service type, availability, distance,
-            ratings and estimated repair time.
-
-        </p>
-
-
-        <!-- SEARCH -->
-
-        <div class="search-box">
-
-            <div class="search-input">
-
-                <span>⌕</span>
-
-                <input
-                    id="search"
-                    type="text"
-                    maxlength="40"
-                    placeholder="What needs repair?"
-                >
-
-            </div>
-
-
-            <select id="category">
-
-                <option value="all">
-                    All categories
-                </option>
-
-                <option value="Phone">
-                    Phone
-                </option>
-
-                <option value="Laptop">
-                    Laptop
-                </option>
-
-                <option value="Appliance">
-                    Appliance
-                </option>
-
-                <option value="Bike">
-                    Bike
-                </option>
-
-                <option value="Watch">
-                    Watch
-                </option>
-
-                <option value="Shoe">
-                    Shoe
-                </option>
-
-            </select>
-
-
-            <select id="availability">
-
-                <option value="all">
-                    Any availability
-                </option>
-
-                <option value="open">
-                    Open now
-                </option>
-
-                <option value="today">
-                    Available today
-                </option>
-
-            </select>
-
-
-            <button
-                id="searchBtn"
-                class="primary-btn"
-            >
-
-                Search
-
-            </button>
-
-        </div>
-
-
-        <p
-            id="searchError"
-            class="error"
-        ></p>
-
+    <div class="header-actions">
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">🌙</button>
+      <button id="loginBtn" class="btn btn-primary">Login</button>
+      <button id="logoutBtn" class="btn btn-outline hidden">Logout</button>
     </div>
+  </header>
 
-
-    <!-- HERO ANIMATION -->
-
-    <div class="hero-art">
-
-        <div class="circle circle1"></div>
-
-        <div class="circle circle2"></div>
-
-
-        <div class="tool-card tool1">
-            🔧
-            <small>Repair</small>
+  <main>
+    <section id="home" class="hero section">
+      <div class="hero-content">
+        <span class="eyebrow">YOUR NEIGHBOURHOOD SERVICE PARTNER</span>
+        <h1>Local help.<br><span>Right when you need it.</span></h1>
+        <p>
+          Find electricians, plumbers, mobile repair experts and other
+          local professionals in one place.
+        </p>
+        <div class="hero-actions">
+          <a href="#shops" class="btn btn-primary">Explore Shops →</a>
+          <button id="heroRequestBtn" class="btn btn-outline">
+            Request a Service
+          </button>
         </div>
-
-
-        <div class="tool-card tool2">
-            📱
-            <small>Phone</small>
+        <div class="hero-stats">
+          <div><strong>Easy</strong><span>Booking</span></div>
+          <div><strong>Local</strong><span>Professionals</span></div>
+          <div><strong>Live</strong><span>Demo Status</span></div>
         </div>
+      </div>
 
+      <div class="hero-card">
+        <div class="hero-card-icon">🛠️</div>
+        <span class="eyebrow">YOUR LOCAL SERVICES</span>
+        <h2>One place. Many solutions.</h2>
+        <p>Discover service providers, check ratings and find their locations.</p>
+        <a href="#services" class="text-link">Find a service ↗</a>
+      </div>
+    </section>
 
-        <div class="tool-card tool3">
-            💻
-            <small>Laptop</small>
-        </div>
-
-
-        <div class="center">
-            🛠️
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- SHOPS -->
-
-<section class="shops-section" id="shops">
-
-    <div class="section-header">
-
+    <section id="services" class="section">
+      <div class="section-heading">
         <div>
-
-            <p class="eyebrow">
-                DISCOVERY
-            </p>
-
-            <h2>
-                Repair shops near you
-            </h2>
-
+          <span class="eyebrow">WHAT DO YOU NEED?</span>
+          <h2>Explore Services</h2>
         </div>
+        <p>Choose a category to find the right professional.</p>
+      </div>
 
-
-        <span id="resultCount"></span>
-
-    </div>
-
-
-    <!-- FILTERS -->
-
-    <div class="filters">
-
-        <button
-            class="filter active"
-            data-filter="all"
-        >
-            All
+      <div class="service-grid">
+        <button class="service-card" data-category="Electrician">
+          <span class="service-icon">⚡</span>
+          <strong>Electrician</strong>
+          <span>Electrical repairs</span>
         </button>
-
-
-        <button
-            class="filter"
-            data-filter="top"
-        >
-            Top Rated
+        <button class="service-card" data-category="Plumber">
+          <span class="service-icon">🚿</span>
+          <strong>Plumber</strong>
+          <span>Pipes and leaks</span>
         </button>
-
-
-        <button
-            class="filter"
-            data-filter="fast"
-        >
-            Fast Service
+        <button class="service-card" data-category="Mobile Repair">
+          <span class="service-icon">📱</span>
+          <strong>Mobile Repair</strong>
+          <span>Phone services</span>
         </button>
-
-
-        <button
-            class="filter"
-            data-filter="open"
-        >
-            Open Now
+        <button class="service-card" data-category="Cleaning">
+          <span class="service-icon">🧹</span>
+          <strong>Cleaning</strong>
+          <span>Home cleaning</span>
         </button>
+      </div>
+    </section>
 
-    </div>
-
-
-    <div class="layout">
-
-
-        <!-- SHOP LIST -->
-
-        <div id="shopList" class="shop-list"></div>
-
-
-        <!-- MAP -->
-
-        <div class="map">
-
-            <div class="map-grid"></div>
-
-            <div class="map-title">
-                LOCAL SERVICE MAP
-            </div>
-
-
-            <div class="street street1"></div>
-
-            <div class="street street2"></div>
-
-            <div class="street street3"></div>
-
-
-            <div id="mapPins"></div>
-
-
-            <div class="you">
-                YOU
-            </div>
-
+    <section id="shops" class="section alternate">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">FIND YOUR PROFESSIONAL</span>
+          <h2>Nearby Service Providers</h2>
         </div>
-
-    </div>
-
-</section>
-
-
-<!-- ABOUT -->
-
-<section class="about" id="about">
-
-    <p class="eyebrow">
-        PROJECT CONCEPT
-    </p>
-
-    <h2>
-        Turn fragmented local repair
-        information into one useful service layer.
-    </h2>
-
-
-    <div class="feature-grid">
-
-
-        <article>
-
-            <b>01</b>
-
-            <h3>
-                Availability First
-            </h3>
-
-            <p>
-                People need to know who can actually
-                accept a repair instead of simply seeing
-                a list of businesses.
-            </p>
-
-        </article>
-
-
-        <article>
-
-            <b>02</b>
-
-            <h3>
-                Transparent Signals
-            </h3>
-
-            <p>
-                Combine distance, rating, estimated
-                service time and availability.
-            </p>
-
-        </article>
-
-
-        <article>
-
-            <b>03</b>
-
-            <h3>
-                Community Updates
-            </h3>
-
-            <p>
-                A production version could allow
-                shops and customers to verify current
-                availability.
-            </p>
-
-        </article>
-
-
-    </div>
-
-</section>
-
-</main>
-
-
-<!-- BOOKING MODAL -->
-
-<div
-    class="modal"
-    id="modal"
->
-
-    <div class="modal-card">
-
-        <button
-            id="closeModal"
-            class="close"
-        >
-            ×
-        </button>
-
-
-        <p class="eyebrow">
-            SERVICE REQUEST
-        </p>
-
-
-        <h2 id="modalTitle">
-            Request Repair
-        </h2>
-
-
-        <form id="bookingForm" novalidate>
-
-
-            <label>
-
-                Your Name
-
-                <input
-                    id="customerName"
-                    type="text"
-                    maxlength="50"
-                    placeholder="Enter your name"
-                >
-
-            </label>
-
-
-            <label>
-
-                Repair Description
-
-                <textarea
-                    id="issue"
-                    maxlength="180"
-                    placeholder="Describe the problem"
-                ></textarea>
-
-            </label>
-
-
-            <label>
-
-                Preferred Time
-
-                <select id="time">
-
-                    <option value="">
-                        Select time
-                    </option>
-
-                    <option>
-                        Morning
-                    </option>
-
-                    <option>
-                        Afternoon
-                    </option>
-
-                    <option>
-                        Evening
-                    </option>
-
-                </select>
-
-            </label>
-
-
-            <button class="primary-btn full">
-
-                Send Repair Request
-
-            </button>
-
-
-            <p
-                id="bookingError"
-                class="error"
-            ></p>
-
-
+        <button id="clearFiltersBtn" class="btn btn-outline">Clear Filters</button>
+      </div>
+
+      <div class="filter-bar">
+        <input id="searchInput" type="search"
+          placeholder="Search shop or service..." aria-label="Search shops">
+
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="All">All Services</option>
+          <option value="Electrician">Electrician</option>
+          <option value="Plumber">Plumber</option>
+          <option value="Mobile Repair">Mobile Repair</option>
+          <option value="Cleaning">Cleaning</option>
+        </select>
+
+        <select id="availabilityFilter" aria-label="Filter by availability">
+          <option value="All">Any Availability</option>
+          <option value="Active">Active Now</option>
+        </select>
+      </div>
+
+      <p id="resultsCount" class="muted"></p>
+      <div id="shopContainer" class="shop-grid"></div>
+      <p id="emptyMessage" class="empty-message hidden">
+        No matching shops found. Try another search.
+      </p>
+    </section>
+
+    <section id="requestSection" class="section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">NEED PROFESSIONAL HELP?</span>
+          <h2>Request a Service</h2>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="muted">Customer login is required to submit a demo request.</p>
+        <form id="requestForm">
+          <label for="requestService">Service required</label>
+          <select id="requestService" required>
+            <option value="">Select a service</option>
+            <option>Electrician</option>
+            <option>Plumber</option>
+            <option>Mobile Repair</option>
+            <option>Cleaning</option>
+          </select>
+
+          <label for="requestDetails">Describe the problem</label>
+          <textarea id="requestDetails" rows="4"
+            placeholder="Explain what you need help with..." required></textarea>
+
+          <label for="requestAddress">Your location or address</label>
+          <input id="requestAddress" type="text"
+            placeholder="Enter your area or address" required>
+
+          <button class="btn btn-primary" type="submit">Submit Request →</button>
         </form>
+        <div id="customerRequests" class="request-list"></div>
+      </div>
+    </section>
 
+    <section id="workerDashboard" class="section alternate hidden">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">WORKER PANEL</span>
+          <h2>Worker Dashboard</h2>
+        </div>
+        <span class="status-pill" id="workerStatus">Offline</span>
+      </div>
+
+      <div class="form-card">
+        <p>Choose your shop and mark your attendance to update your demo availability.</p>
+        <label for="workerShop">Your shop</label>
+        <select id="workerShop"></select>
+        <button id="attendanceBtn" class="btn btn-primary" type="button">
+          Mark Attendance / Go Active
+        </button>
+        <p id="attendanceMessage" class="muted" aria-live="polite"></p>
+        <p class="muted">
+          Demo only: attendance is saved in this browser and is not shared
+          live with other devices.
+        </p>
+      </div>
+    </section>
+
+    <section id="mapSection" class="section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">FIND THE LOCATION</span>
+          <h2>Explore on the Map</h2>
+        </div>
+        <p>Select a shop marker to view its details and directions.</p>
+      </div>
+      <div id="map" role="application" aria-label="Map of service providers"></div>
+      <p class="map-note">Sample shop locations are for demonstration only.</p>
+    </section>
+
+    <section id="contact" class="section alternate">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">WE'RE HERE TO HELP</span>
+          <h2>Contact FixNear</h2>
+        </div>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-card">
+          <span class="service-icon">📞</span>
+          <h3>Phone</h3>
+          <p>Demo support contact</p>
+          <a href="tel:+919000000000" class="text-link">Call +91 90000 00000</a>
+        </div>
+        <div class="contact-card">
+          <span class="service-icon">✉️</span>
+          <h3>Email</h3>
+          <p>Questions and feedback</p>
+          <a href="mailto:support@example.com" class="text-link">
+            support@example.com
+          </a>
+        </div>
+        <div class="contact-card">
+          <span class="service-icon">📍</span>
+          <h3>Service Area</h3>
+          <p>Rajamahendravaram demo area</p>
+          <a href="https://www.google.com/maps/search/?api=1&query=Rajamahendravaram"
+             target="_blank" rel="noopener noreferrer" class="text-link">
+            Open Google Maps ↗
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a href="#home" class="logo">Fix<span>Near</span></a>
+    <p>Connecting people with local services.</p>
+    <p>© <span id="currentYear"></span> FixNear. Student frontend demo.</p>
+  </footer>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal hidden" role="dialog"
+    aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-card">
+      <button id="closeModal" class="modal-close"
+        aria-label="Close login">✕</button>
+      <span class="eyebrow">WELCOME TO FIXNEAR</span>
+      <h2 id="loginTitle">Login to Continue</h2>
+      <p class="muted">Choose your account type for the demo.</p>
+
+      <form id="loginForm">
+        <label for="loginName">Your name</label>
+        <input id="loginName" type="text" placeholder="Enter your name" required>
+
+        <label for="loginRole">Login as</label>
+        <select id="loginRole" required>
+          <option value="">Choose your role</option>
+          <option value="customer">Customer</option>
+          <option value="worker">Worker</option>
+        </select>
+
+        <button class="btn btn-primary full-width" type="submit">Continue →</button>
+      </form>
+      <p class="small-note">
+        This is a frontend demo, not secure account authentication.
+      </p>
     </div>
+  </div>
 
-</div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-
-<footer>
-
-    FixNear • Local Repair Shop Availability
-
-    <br>
-
-    Built by Jadidya using HTML, CSS & JavaScript
-
-</footer>
-
-
-<script src="script.js"></script>
-
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
 </body>
-
 </html>
