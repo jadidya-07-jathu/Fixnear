@@ -4,278 +4,660 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FixNear - Find trusted local repair workers and home services.">
   <title>FixNear | Local Services</title>
-  <meta name="description" content="Find trusted local repair workers and home services.">
-
-  <link rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <header class="header">
-    <a href="#home" class="logo">Fix<span>Near</span></a>
 
-    <button class="menu-toggle" id="menuToggle"
-      aria-label="Open navigation">☰</button>
+  <!-- First screen: choose customer or worker -->
+  <section id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-card">
+      <div class="brand brand-large">Fix<span>Near</span></div>
+      <p class="eyebrow">LOCAL SERVICES, MADE SIMPLE</p>
+      <h1>What brings you to FixNear?</h1>
+      <p class="muted">Choose how you want to use the platform.</p>
 
-    <nav id="navigation">
+      <div class="role-options">
+        <button class="role-card" id="chooseCustomer" type="button">
+          <span class="role-icon">🏠</span>
+          <strong>I need a service</strong>
+          <small>Find a nearby service provider</small>
+        </button>
+
+        <button class="role-card" id="chooseWorker" type="button">
+          <span class="role-icon">🧰</span>
+          <strong>I provide services</strong>
+          <small>Register or manage your work</small>
+        </button>
+      </div>
+
+      <p class="small-note">
+        Demo version: profiles and requests are stored in this browser only.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main website -->
+  <div id="app" class="app hidden">
+
+    <header class="site-header">
+      <a href="#home" class="brand">Fix<span>Near</span></a>
+
+      <button id="menuToggle" class="menu-toggle" type="button"
+        aria-label="Open navigation" aria-expanded="false">☰</button>
+
+      <nav id="mainNav" class="main-nav">
+        <a href="#home">Home</a>
+        <a href="#services">Services</a>
+        <a href="#shops">Providers</a>
+        <a href="#requestSection" class="customer-only">Book Service</a>
+        <a href="#customerDashboard" class="customer-only">My Requests</a>
+        <a href="#workerDashboard" class="worker-only">Worker Dashboard</a>
+      </nav>
+
+      <div class="header-actions">
+        <span id="currentRole" class="role-badge">Guest</span>
+        <button id="themeToggle" class="icon-button" type="button"
+          aria-label="Toggle theme">☾</button>
+        <button id="switchRole" class="outline-button" type="button">
+          Switch Role
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Home -->
+      <section id="home" class="hero section">
+        <div class="hero-copy">
+          <p class="eyebrow">YOUR NEIGHBOURHOOD SERVICE NETWORK</p>
+          <h1>Reliable help for your <span>everyday needs.</span></h1>
+          <p class="hero-description">
+            Discover local electricians, plumbers, mechanics, cleaners and
+            other service providers in one convenient place.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#services" class="primary-button">Explore Services</a>
+            <a href="#shops" class="secondary-button">Find Providers</a>
+          </div>
+
+          <div class="hero-stats">
+            <div><strong>Local</strong><span>Service discovery</span></div>
+            <div><strong>Simple</strong><span>Booking requests</span></div>
+            <div><strong>Clear</strong><span>Work tracking</span></div>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="Local repair services illustration">
+          <div class="art-circle"></div>
+          <div class="art-card art-card-main">
+            <span class="art-emoji">🧰</span>
+            <h3>Help is nearby</h3>
+            <p>Connect with local service providers.</p>
+          </div>
+          <div class="art-card art-card-small">
+            <span>✓</span>
+            <div><strong>Easy requests</strong><small>Track your booking</small></div>
+          </div>
+          <div class="floating-tool tool-one">🔧</div>
+          <div class="floating-tool tool-two">💡</div>
+        </div>
+      </section>
+
+      <!-- Services -->
+      <section id="services" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">WHAT DO YOU NEED?</p>
+            <h2>Explore our services</h2>
+            <p class="muted">Choose a category to find matching providers.</p>
+          </div>
+        </div>
+
+        <div id="serviceGrid" class="service-grid">
+          <!-- Created by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Providers -->
+      <section id="shops" class="section section-soft">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LOCAL PROFESSIONALS</p>
+            <h2>Find a service provider</h2>
+            <p class="muted">Review provider details before making a request.</p>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input id="providerSearch" type="search"
+            placeholder="Search by name, service or location"
+            aria-label="Search providers">
+
+          <select id="serviceFilter" aria-label="Filter by service">
+            <option value="All">All services</option>
+            <option value="Electrician">Electrician</option>
+            <option value="Plumber">Plumber</option>
+            <option value="Mechanic">Mechanic</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Carpenter">Carpenter</option>
+            <option value="AC Repair">AC Repair</option>
+            <option value="Painter">Painter</option>
+            <option value="Appliance Repair">Appliance Repair</option>
+          </select>
+        </div>
+
+        <div id="providerGrid" class="provider-grid">
+          <!-- Created by JavaScript -->
+        </div>
+
+        <p class="small-note">
+          Demo providers are sample listings, not verified real businesses.
+        </p>
+      </section>
+
+      <!-- Customer booking -->
+      <section id="requestSection" class="section customer-only">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">BOOK A SERVICE</p>
+            <h2>Tell us what you need</h2>
+            <p class="muted">Submit a request for a provider to review.</p>
+          </div>
+        </div>
+
+        <form id="requestForm" class="form-card">
+          <div class="form-grid">
+            <label>
+              Your name
+              <input id="customerName" type="text" required maxlength="60"
+                placeholder="Enter your name">
+            </label>
+
+            <label>
+              Contact number
+              <input id="customerPhone" type="tel" required
+                pattern="[0-9+\-\s]{7,18}" placeholder="Enter phone number">
+            </label>
+
+            <label>
+              Service category
+              <select id="requestService" required>
+                <option value="">Select service</option>
+                <option>Electrician</option>
+                <option>Plumber</option>
+                <option>Mechanic</option>
+                <option>Cleaning</option>
+                <option>Carpenter</option>
+                <option>AC Repair</option>
+                <option>Painter</option>
+                <option>Appliance Repair</option>
+              </select>
+            </label>
+
+            <label>
+              Preferred provider
+              <select id="requestProvider">
+                <option value="">Any matching provider</option>
+              </select>
+            </label>
+
+            <label class="full-width">
+              Service address or area
+              <input id="customerAddress" type="text" required maxlength="180"
+                placeholder="Enter area or service address">
+            </label>
+
+            <label class="full-width">
+              Describe the issue
+              <textarea id="requestDescription" required maxlength="700"
+                rows="4" placeholder="Explain the work you need done"></textarea>
+            </label>
+
+            <label>
+              Preferred date
+              <input id="requestDate" type="date">
+            </label>
+
+            <label>
+              Estimated budget (₹)
+              <input id="requestBudget" type="number" min="0" max="1000000"
+                placeholder="Optional">
+            </label>
+          </div>
+
+          <button class="primary-button" type="submit">Submit Request</button>
+        </form>
+      </section>
+
+      <!-- Customer dashboard -->
+      <section id="customerDashboard" class="section customer-only">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CUSTOMER AREA</p>
+            <h2>My service requests</h2>
+            <p class="muted">Review status and rate completed work.</p>
+          </div>
+        </div>
+
+        <div id="customerStats" class="stats-grid"></div>
+        <div id="customerOrders" class="order-list"></div>
+      </section>
+
+      <!-- Worker registration -->
+      <section id="workerRegistration" class="section worker-only">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">JOIN FIXNEAR</p>
+            <h2>Worker registration</h2>
+            <p class="muted">
+              Register your service profile. Use the same name when entering
+              the worker area on this browser.
+            </p>
+          </div>
+        </div>
+
+        <form id="workerForm" class="form-card">
+          <div class="form-grid">
+            <label>
+              Full name
+              <input id="workerName" type="text" required maxlength="70"
+                placeholder="Your full name">
+            </label>
+
+            <label>
+              Phone number
+              <input id="workerPhone" type="tel" required
+                pattern="[0-9+\-\s]{7,18}" placeholder="Contact number">
+            </label>
+
+            <label>
+              Age
+              <input id="workerAge" type="number" min="18" max="100" required
+                placeholder="Age">
+            </label>
+
+            <label>
+              Education
+              <select id="workerEducation" required>
+                <option value="">Select education</option>
+                <option>Below 10th</option>
+                <option>10th pass</option>
+                <option>Intermediate</option>
+                <option>ITI / Vocational</option>
+                <option>Diploma</option>
+                <option>Degree</option>
+                <option>Other</option>
+              </select>
+            </label>
+
+            <label>
+              Main service
+              <select id="workerService" required>
+                <option value="">Select service</option>
+                <option>Electrician</option>
+                <option>Plumber</option>
+                <option>Mechanic</option>
+                <option>Cleaning</option>
+                <option>Carpenter</option>
+                <option>AC Repair</option>
+                <option>Painter</option>
+                <option>Appliance Repair</option>
+              </select>
+            </label>
+
+            <label>
+              Experience in years
+              <input id="workerExperience" type="number" min="0" max="70"
+                required placeholder="Years of experience">
+            </label>
+
+            <label>
+              Work arrangement
+              <select id="workerType" required>
+                <option value="">Select arrangement</option>
+                <option value="Independent">Independent worker</option>
+                <option value="Shop employee">Shop employee</option>
+                <option value="Shop owner">Shop owner</option>
+              </select>
+            </label>
+
+            <label>
+              Shop name (if applicable)
+              <input id="workerShop" type="text" maxlength="100"
+                placeholder="Shop or business name">
+            </label>
+
+            <label class="full-width">
+              Service area
+              <input id="workerLocation" type="text" required maxlength="150"
+                placeholder="Town, area or neighbourhood">
+            </label>
+
+            <label>
+              Starting price (₹)
+              <input id="workerPrice" type="number" min="0" max="1000000"
+                required placeholder="Example: 300">
+            </label>
+
+            <label>
+              Monthly wage (₹, for shop employees)
+              <input id="workerWage" type="number" min="0" max="10000000"
+                placeholder="Optional">
+            </label>
+
+            <label class="full-width">
+              Skills and additional details
+              <textarea id="workerSkills" rows="3" maxlength="700"
+                placeholder="Describe your skills and services"></textarea>
+            </label>
+
+            <label class="full-width checkbox-label">
+              <input id="workerAvailable" type="checkbox" checked>
+              Available for new service requests
+            </label>
+          </div>
+
+          <button class="primary-button" type="submit">Save Worker Profile</button>
+        </form>
+      </section>
+
+      <!-- Worker dashboard -->
+      <section id="workerDashboard" class="section worker-only">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">WORKER AREA</p>
+            <h2>Worker dashboard</h2>
+            <p class="muted">Manage requests, work status and earnings.</p>
+          </div>
+          <button id="editWorkerProfile" class="secondary-button" type="button">
+            Edit Profile
+          </button>
+        </div>
+
+        <div id="workerSummary" class="stats-grid"></div>
+
+        <div class="dashboard-columns">
+          <div class="dashboard-panel">
+            <h3>My profile</h3>
+            <div id="workerProfileDetails"></div>
+          </div>
+
+          <div class="dashboard-panel">
+            <h3>Ratings and feedback</h3>
+            <div id="workerRatings"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-panel">
+          <h3>Assigned service requests</h3>
+          <div id="workerOrders" class="order-list"></div>
+        </div>
+
+        <div class="dashboard-panel">
+          <h3>Wage and earnings tracker</h3>
+          <p class="muted">
+            This is a manual demo tracker, not a payroll or payment service.
+          </p>
+          <form id="wageForm" class="inline-form">
+            <label>
+              Add earnings (₹)
+              <input id="wageAmount" type="number" min="1" max="10000000"
+                required placeholder="Amount">
+            </label>
+            <label>
+              Note
+              <input id="wageNote" type="text" maxlength="150"
+                placeholder="Example: Repair work">
+            </label>
+            <button class="primary-button" type="submit">Add Entry</button>
+          </form>
+          <div id="wageEntries" class="order-list"></div>
+        </div>
+      </section>
+
+      <!-- Map directions help -->
+      <section id="mapSection" class="section map-help">
+        <div>
+          <p class="eyebrow">FIND THE LOCATION</p>
+          <h2>Directions with Google Maps</h2>
+          <p class="muted">
+            Each provider listing can open Google Maps directions in a new tab.
+            This demo does not collect live GPS location.
+          </p>
+        </div>
+        <a class="secondary-button"
+          href="https://www.google.com/maps"
+          target="_blank" rel="noopener noreferrer">Open Google Maps</a>
+      </section>
+    </main>
+
+    <footer id="contact" class="site-footer">
+      <a href="#home" class="brand">Fix<span>Near</span></a>
+      <p>Connecting people with local services.</p>
+      <p class="small-note">Student project demo. Verify providers before hiring.</p>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FixNear - Local repair workers and home services">
+  <title>FixNear | Local Services</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#home">Fix<span>Near</span></a>
+    <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation">☰</button>
+    <nav id="mainNav">
       <a href="#home">Home</a>
       <a href="#services">Services</a>
-      <a href="#shops">Shops</a>
-      <a href="#mapSection">Map</a>
-      <a href="#contact">Contact</a>
+      <a href="#request">Book a service</a>
+      <a href="#worker">Worker registration</a>
+      <a href="#admin">Admin</a>
     </nav>
-
-    <div class="header-actions">
-      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">🌙</button>
-      <button id="loginBtn" class="btn btn-primary">Login</button>
-      <button id="logoutBtn" class="btn btn-outline hidden">Logout</button>
-    </div>
   </header>
 
   <main>
-    <section id="home" class="hero section">
-      <div class="hero-content">
-        <span class="eyebrow">YOUR NEIGHBOURHOOD SERVICE PARTNER</span>
-        <h1>Local help.<br><span>Right when you need it.</span></h1>
-        <p>
-          Find electricians, plumbers, mobile repair experts and other
-          local professionals in one place.
-        </p>
-        <div class="hero-actions">
-          <a href="#shops" class="btn btn-primary">Explore Shops →</a>
-          <button id="heroRequestBtn" class="btn btn-outline">
-            Request a Service
-          </button>
-        </div>
-        <div class="hero-stats">
-          <div><strong>Easy</strong><span>Booking</span></div>
-          <div><strong>Local</strong><span>Professionals</span></div>
-          <div><strong>Live</strong><span>Demo Status</span></div>
-        </div>
-      </div>
-
-      <div class="hero-card">
-        <div class="hero-card-icon">🛠️</div>
-        <span class="eyebrow">YOUR LOCAL SERVICES</span>
-        <h2>One place. Many solutions.</h2>
-        <p>Discover service providers, check ratings and find their locations.</p>
-        <a href="#services" class="text-link">Find a service ↗</a>
-      </div>
+    <section id="home" class="hero">
+      <p class="eyebrow">LOCAL SERVICES, MADE SIMPLE</p>
+      <h1>Find trusted help <span>near you.</span></h1>
+      <p>Discover local service providers for repairs and home maintenance.</p>
+      <a class="button" href="#services">Explore services</a>
     </section>
 
     <section id="services" class="section">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">WHAT DO YOU NEED?</span>
-          <h2>Explore Services</h2>
-        </div>
-        <p>Choose a category to find the right professional.</p>
-      </div>
-
-      <div class="service-grid">
-        <button class="service-card" data-category="Electrician">
-          <span class="service-icon">⚡</span>
-          <strong>Electrician</strong>
-          <span>Electrical repairs</span>
-        </button>
-        <button class="service-card" data-category="Plumber">
-          <span class="service-icon">🚿</span>
-          <strong>Plumber</strong>
-          <span>Pipes and leaks</span>
-        </button>
-        <button class="service-card" data-category="Mobile Repair">
-          <span class="service-icon">📱</span>
-          <strong>Mobile Repair</strong>
-          <span>Phone services</span>
-        </button>
-        <button class="service-card" data-category="Cleaning">
-          <span class="service-icon">🧹</span>
-          <strong>Cleaning</strong>
-          <span>Home cleaning</span>
-        </button>
+      <h2>Our services</h2>
+      <p>Service categories are loaded from the FixNear database.</p>
+      <div id="serviceList" class="service-grid">
+        <p>Loading services...</p>
       </div>
     </section>
 
-    <section id="shops" class="section alternate">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">FIND YOUR PROFESSIONAL</span>
-          <h2>Nearby Service Providers</h2>
-        </div>
-        <button id="clearFiltersBtn" class="btn btn-outline">Clear Filters</button>
-      </div>
-
-      <div class="filter-bar">
-        <input id="searchInput" type="search"
-          placeholder="Search shop or service..." aria-label="Search shops">
-
-        <select id="categoryFilter" aria-label="Filter by category">
-          <option value="All">All Services</option>
-          <option value="Electrician">Electrician</option>
-          <option value="Plumber">Plumber</option>
-          <option value="Mobile Repair">Mobile Repair</option>
-          <option value="Cleaning">Cleaning</option>
-        </select>
-
-        <select id="availabilityFilter" aria-label="Filter by availability">
-          <option value="All">Any Availability</option>
-          <option value="Active">Active Now</option>
-        </select>
-      </div>
-
-      <p id="resultsCount" class="muted"></p>
-      <div id="shopContainer" class="shop-grid"></div>
-      <p id="emptyMessage" class="empty-message hidden">
-        No matching shops found. Try another search.
-      </p>
-    </section>
-
-    <section id="requestSection" class="section">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">NEED PROFESSIONAL HELP?</span>
-          <h2>Request a Service</h2>
-        </div>
-      </div>
-
-      <div class="form-card">
-        <p class="muted">Customer login is required to submit a demo request.</p>
-        <form id="requestForm">
-          <label for="requestService">Service required</label>
-          <select id="requestService" required>
-            <option value="">Select a service</option>
-            <option>Electrician</option>
-            <option>Plumber</option>
-            <option>Mobile Repair</option>
-            <option>Cleaning</option>
+    <section id="request" class="section">
+      <h2>Book a service</h2>
+      <form id="requestForm" class="form-card">
+        <label>Full name
+          <input name="customer_name" required maxlength="120">
+        </label>
+        <label>Phone number
+          <input name="customer_phone" type="tel" required maxlength="20">
+        </label>
+        <label>Service
+          <select name="service_name" id="requestService" required>
+            <option value="">Choose a service</option>
           </select>
-
-          <label for="requestDetails">Describe the problem</label>
-          <textarea id="requestDetails" rows="4"
-            placeholder="Explain what you need help with..." required></textarea>
-
-          <label for="requestAddress">Your location or address</label>
-          <input id="requestAddress" type="text"
-            placeholder="Enter your area or address" required>
-
-          <button class="btn btn-primary" type="submit">Submit Request →</button>
-        </form>
-        <div id="customerRequests" class="request-list"></div>
-      </div>
+        </label>
+        <label>Address
+          <textarea name="address" required maxlength="500"></textarea>
+        </label>
+        <label>Additional details
+          <textarea name="description" maxlength="3000"></textarea>
+        </label>
+        <label>Preferred date
+          <input name="preferred_date" type="date">
+        </label>
+        <button class="button" type="submit">Submit request</button>
+      </form>
     </section>
 
-    <section id="workerDashboard" class="section alternate hidden">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">WORKER PANEL</span>
-          <h2>Worker Dashboard</h2>
-        </div>
-        <span class="status-pill" id="workerStatus">Offline</span>
-      </div>
-
-      <div class="form-card">
-        <p>Choose your shop and mark your attendance to update your demo availability.</p>
-        <label for="workerShop">Your shop</label>
-        <select id="workerShop"></select>
-        <button id="attendanceBtn" class="btn btn-primary" type="button">
-          Mark Attendance / Go Active
-        </button>
-        <p id="attendanceMessage" class="muted" aria-live="polite"></p>
-        <p class="muted">
-          Demo only: attendance is saved in this browser and is not shared
-          live with other devices.
-        </p>
-      </div>
+    <section id="worker" class="section">
+      <h2>Register as a service provider</h2>
+      <form id="workerForm" class="form-card">
+        <label>Full name
+          <input name="name" required maxlength="120">
+        </label>
+        <label>Phone number
+          <input name="phone" type="tel" required maxlength="20">
+        </label>
+        <label>Service category
+          <select name="service_id" id="workerService">
+            <option value="">Choose a service</option>
+          </select>
+        </label>
+        <label>Experience in years
+          <input name="experience_years" type="number" min="0" max="80" value="0">
+        </label>
+        <label>Worker type
+          <select name="worker_type">
+            <option value="independent">Independent worker</option>
+            <option value="shop">Shop</option>
+            <option value="employee">Employee</option>
+          </select>
+        </label>
+        <label>Shop name (optional)
+          <input name="shop_name" maxlength="150">
+        </label>
+        <label>Location
+          <input name="location" required maxlength="255">
+        </label>
+        <label>Skills
+          <textarea name="skills" maxlength="2000"></textarea>
+        </label>
+        <label>Rate (₹)
+          <input name="rate" type="number" min="0" step="0.01" value="0">
+        </label>
+        <label>Monthly wage (₹, if applicable)
+          <input name="monthly_wage" type="number" min="0" step="0.01" value="0">
+        </label>
+        <button class="button" type="submit">Register worker</button>
+      </form>
     </section>
 
-    <section id="mapSection" class="section">
-      <div class="section-heading">
+    <!-- ADMIN IS INSIDE THE SAME INDEX.HTML -->
+    <section id="admin" class="section admin-section">
+      <div class="admin-heading">
         <div>
-          <span class="eyebrow">FIND THE LOCATION</span>
-          <h2>Explore on the Map</h2>
+          <p class="eyebrow">RESTRICTED AREA</p>
+          <h2>FixNear Admin Panel</h2>
+          <p>Manage service requests, workers, service categories and wage records.</p>
         </div>
-        <p>Select a shop marker to view its details and directions.</p>
-      </div>
-      <div id="map" role="application" aria-label="Map of service providers"></div>
-      <p class="map-note">Sample shop locations are for demonstration only.</p>
-    </section>
-
-    <section id="contact" class="section alternate">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">WE'RE HERE TO HELP</span>
-          <h2>Contact FixNear</h2>
-        </div>
+        <span class="admin-badge">Admin only</span>
       </div>
 
-      <div class="contact-grid">
-        <div class="contact-card">
-          <span class="service-icon">📞</span>
-          <h3>Phone</h3>
-          <p>Demo support contact</p>
-          <a href="tel:+919000000000" class="text-link">Call +91 90000 00000</a>
+      <div id="adminMessage" class="message" role="status" aria-live="polite"></div>
+
+      <form id="adminLoginForm" class="form-card">
+        <h3>Admin login</h3>
+        <label>Username
+          <input name="username" autocomplete="username" required maxlength="80">
+        </label>
+        <label>Password
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="button" type="submit">Log in</button>
+      </form>
+
+      <div id="adminDashboard" hidden>
+        <div class="admin-toolbar">
+          <p>Signed in as <strong id="adminUsername"></strong></p>
+          <div class="toolbar-actions">
+            <button id="refreshAdmin" class="button secondary" type="button">Refresh</button>
+            <button id="adminLogout" class="button danger" type="button">Log out</button>
+          </div>
         </div>
-        <div class="contact-card">
-          <span class="service-icon">✉️</span>
-          <h3>Email</h3>
-          <p>Questions and feedback</p>
-          <a href="mailto:support@example.com" class="text-link">
-            support@example.com
-          </a>
+
+        <div class="stats-grid">
+          <article class="stat-card"><span>Total requests</span><strong id="statRequests">0</strong></article>
+          <article class="stat-card"><span>Pending requests</span><strong id="statPending">0</strong></article>
+          <article class="stat-card"><span>Registered workers</span><strong id="statWorkers">0</strong></article>
+          <article class="stat-card"><span>Active services</span><strong id="statServices">0</strong></article>
+          <article class="stat-card"><span>Recorded payments</span><strong id="statPayments">₹0</strong></article>
         </div>
-        <div class="contact-card">
-          <span class="service-icon">📍</span>
-          <h3>Service Area</h3>
-          <p>Rajamahendravaram demo area</p>
-          <a href="https://www.google.com/maps/search/?api=1&query=Rajamahendravaram"
-             target="_blank" rel="noopener noreferrer" class="text-link">
-            Open Google Maps ↗
-          </a>
+
+        <div class="admin-card">
+          <h3>Service requests</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Customer</th><th>Phone</th><th>Service</th><th>Address</th><th>Status</th><th>Save</th></tr></thead>
+              <tbody id="adminRequests"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3>Registered workers</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Service</th><th>Location</th><th>Rate</th></tr></thead>
+              <tbody id="adminWorkers"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3>Manage services</h3>
+          <form id="adminServiceForm" class="inline-form">
+            <input name="name" placeholder="Service name" required maxlength="100">
+            <input name="description" placeholder="Description" maxlength="500">
+            <button class="button" type="submit">Add service</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Service</th><th>Description</th><th>Active</th><th>Action</th></tr></thead>
+              <tbody id="adminServices"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3>Record wage payment</h3>
+          <form id="adminWageForm" class="inline-form">
+            <input name="worker_id" type="number" min="1" placeholder="Worker ID" required>
+            <input name="amount" type="number" min="0.01" step="0.01" placeholder="Amount ₹" required>
+            <select name="entry_type">
+              <option value="payment">Payment</option>
+              <option value="adjustment">Adjustment</option>
+            </select>
+            <input name="note" placeholder="Payment note" maxlength="500">
+            <button class="button" type="submit">Save wage</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Worker</th><th>Amount</th><th>Type</th><th>Note</th><th>Date</th></tr></thead>
+              <tbody id="adminWages"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <a href="#home" class="logo">Fix<span>Near</span></a>
-    <p>Connecting people with local services.</p>
-    <p>© <span id="currentYear"></span> FixNear. Student frontend demo.</p>
+  <footer class="site-footer">
+    <p>© 2026 FixNear — Local services, closer to you.</p>
   </footer>
 
-  <!-- LOGIN MODAL -->
-  <div id="loginModal" class="modal hidden" role="dialog"
-    aria-modal="true" aria-labelledby="loginTitle">
-    <div class="modal-card">
-      <button id="closeModal" class="modal-close"
-        aria-label="Close login">✕</button>
-      <span class="eyebrow">WELCOME TO FIXNEAR</span>
-      <h2 id="loginTitle">Login to Continue</h2>
-      <p class="muted">Choose your account type for the demo.</p>
-
-      <form id="loginForm">
-        <label for="loginName">Your name</label>
-        <input id="loginName" type="text" placeholder="Enter your name" required>
-
-        <label for="loginRole">Login as</label>
-        <select id="loginRole" required>
-          <option value="">Choose your role</option>
-          <option value="customer">Customer</option>
-          <option value="worker">Worker</option>
-        </select>
-
-        <button class="btn btn-primary full-width" type="submit">Continue →</button>
-      </form>
-      <p class="small-note">
-        This is a frontend demo, not secure account authentication.
-      </p>
-    </div>
-  </div>
-
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
